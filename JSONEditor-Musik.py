@@ -174,8 +174,10 @@ class JSONEditor():
         self.trackList = []
         self.platformList = []
         self.aktNumber = None
+        self.selectedRow = None
 
         self.connectButtons()
+        
 
         sys.exit(self.mainApp.exec_())
 
@@ -193,24 +195,30 @@ class JSONEditor():
         self.mainGui.trackButton.clicked.connect(lambda: self.addManager("track"))
         self.mainGui.platformButton.clicked.connect(lambda: self.addManager("platform"))
         self.mainGui.saveButton.clicked.connect(lambda: self.addManager("final"))
+        self.mainGui.trackDeleteButton.clicked.connect(lambda: self.addManager("remove"))
 
         #Table
         self.mainGui.selectRowButton.clicked.connect(lambda: self.tableManager())
 
         #Listen
-        self.mainGui.trackListView.clicked.connect(lambda: self.getTrackFile())
+        # self.mainGui.trackListView.clicked.connect(lambda: self.getTrackFile())
+        self.mainGui.trackListView.clicked.connect(lambda: self.selectTitle())
         self.mainGui.platformListView.clicked.connect(lambda: self.getPlatformLink())
 
     def changePage(self, page):
         if(page == "open"):
+            self.mainGui.infoLabel.setText("")
             self.mainGui.caption.setText("Auswahlseite")
             self.mainGui.stackedWidget.setCurrentIndex(0) 
         elif(page == "add"):
+            self.mainGui.infoLabel.setText("")
             self.MODE = "create"
             self.mainGui.caption.setText("Neues Album hinzufügen")
             self.mainGui.stackedWidget.setCurrentIndex(1)
             self.clearText()
+            self.mainGui.trackDeleteButton.setHidden(True)
         elif(page == "editTab"):
+            self.mainGui.infoLabel.setText("")
             self.MODE = "edit"
             self.mainGui.caption.setText("Album zum bearbeiten auswählen")
             self.mainGui.stackedWidget.setCurrentIndex(2)
@@ -218,10 +226,13 @@ class JSONEditor():
             self.mainGui.lineText.setHidden(True)
             self.mainGui.selectRowButton.setText("Ausgewählte Reihe \n bearbeiten")
         elif(page == "edit"):
+            self.mainGui.infoLabel.setText("")
             self.MODE = "edit"
             self.mainGui.caption.setText("Album bearbeiten")
             self.mainGui.stackedWidget.setCurrentIndex(1)
+            self.mainGui.trackDeleteButton.setHidden(False)
         elif(page == "changeOrder"):
+            self.mainGui.infoLabel.setText("")
             self.MODE = "changeOrder"
             self.mainGui.caption.setText("Alben Reihenfolge ändern")
             self.mainGui.stackedWidget.setCurrentIndex(2)
@@ -238,12 +249,24 @@ class JSONEditor():
             self.addPlatform()
         elif(action == "final"):
             self.final()
+        elif(action == "remove"):
+            self.removeTitle()
 
     def tableManager(self):
         if(self.MODE == "edit"):
             self.callEditRow()
         elif(self.MODE == "changeOrder"):
             self.changeOrder()
+
+    def selectTitle(self):
+        self.selectedRow = self.mainGui.trackListView.currentRow()
+
+    def removeTitle(self):
+        if self.selectedRow != None:
+            self.trackList.remove(self.trackList[self.selectedRow])
+            self.selectedRow = None
+            self.clearText()
+            self.fillText(self.aktNumber)
 
     def getCoverFile(self):
         fname = QFileDialog.getOpenFileName(caption='Album Cover wählen', directory=QStandardPaths.writableLocation(QStandardPaths.DesktopLocation) , filter="Image files (*.jpg)")
@@ -252,46 +275,11 @@ class JSONEditor():
             self.mainGui.coverfileText.setText(ifile.fileName())
 
     def addTrack(self):
-        if(self.getTrackNameIndex(self.mainGui.tracknameText.text()) != None):
-            self.trackList[self.getTrackNameIndex(self.mainGui.tracknameText.text())][1] = self.mainGui.trackFileText.text()
-            self.mainGui.trackFileText.setText("")
-            self.mainGui.tracknameText.setText("")
-            self.clearText()
-            self.fillText(self.aktNumber)
-
-        elif(self.getTrackFileIndex(self.mainGui.trackFileText.text()) != None):
-            self.trackList[self.getTrackFileIndex(self.mainGui.trackFileText.text())][0] = self.mainGui.tracknameText.text()
-            self.mainGui.trackFileText.setText("")
-            self.mainGui.tracknameText.setText("")
-            self.clearText()
-            self.fillText(self.aktNumber)
-        
-        else:
-            if(self.mainGui.tracknameText.text() != ""):
-                fname = QFileDialog.getOpenFileName(caption='Track wählen', directory=QStandardPaths.writableLocation(QStandardPaths.DesktopLocation) , filter="Track files (*.mp3)")
-                ifile = QFileInfo(str(fname[0]))
-                if(ifile.fileName() != ""):
-                    self.mainGui.trackListView.addItem(self.mainGui.tracknameText.text())
-                    self.trackList.append([self.mainGui.tracknameText.text(), ifile.fileName()])
-                    self.mainGui.tracknameText.setText("")
-            else:
-                print("Erst Liedname auswählen")
-    
-    def getTrackFile(self):
-        self.mainGui.tracknameText.setText(self.trackList[self.getTrackNameIndex(self.mainGui.trackListView.currentIndex().data())][0])
-        self.mainGui.trackFileText.setText(self.trackList[self.getTrackNameIndex(self.mainGui.trackListView.currentIndex().data())][1])
-
-    def getTrackNameIndex(self, track):
-        for x in range(len(self.trackList)):
-            if(self.trackList[x][0] == track):
-                return x
-        return None
-    
-    def getTrackFileIndex(self, track):
-        for x in range(len(self.trackList)):
-            if(self.trackList[x][1] == track):
-                return x
-        return None
+        fname = QFileDialog.getOpenFileName(caption='Track wählen', directory=QStandardPaths.writableLocation(QStandardPaths.DesktopLocation) , filter="Track files (*.mp3)")
+        ifile = QFileInfo(str(fname[0]))
+        if(ifile.fileName() != ""):
+            self.mainGui.trackListView.addItem(ifile.fileName())
+            self.trackList.append([ifile.fileName(), ifile.fileName()])
 
     def addPlatform(self):
         if(self.getPlatformIndex(self.mainGui.comboBox.currentText()) != None):
@@ -368,6 +356,8 @@ class JSONEditor():
         self.mainGui.trackListView.clear()
         self.mainGui.platformListView.clear()
 
+        self.mainGui.infoLabel.setText("Erfolgreich gespeichert")
+
     def fillText(self, number):
         self.number = number
         jsonData = self.tool.openJSON()
@@ -394,8 +384,8 @@ class JSONEditor():
         self.mainGui.albumnameText.setText("")
         self.mainGui.promoText.setText("")
         self.mainGui.coverfileText.setText("")
-        self.mainGui.tracknameText.setText("")
-        self.mainGui.trackFileText.setText("")
+        # self.mainGui.tracknameText.setText("")
+        # self.mainGui.trackFileText.setText("")
         self.mainGui.platformlinkText.setText("")
 
         self.mainGui.trackListView.clear()
@@ -433,6 +423,7 @@ class JSONEditor():
         new = int(self.mainGui.lineText.text())
         self.tool.changeOrder(original, new)
         self.fillTableRows()
+        self.mainGui.infoLabel.setText("Reihen ändern")
 
     def callEditRow(self):
         indexes = self.mainGui.tableWidget.selectionModel().selectedRows()

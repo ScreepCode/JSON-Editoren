@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>654</width>
+    <width>647</width>
     <height>893</height>
    </rect>
   </property>
@@ -32,7 +32,7 @@
       <x>0</x>
       <y>29</y>
       <width>631</width>
-      <height>851</height>
+      <height>821</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -336,16 +336,6 @@
        </rect>
       </property>
      </widget>
-     <widget class="QLineEdit" name="tracknameText">
-      <property name="geometry">
-       <rect>
-        <x>270</x>
-        <y>260</y>
-        <width>150</width>
-        <height>40</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QLineEdit" name="platformlinkText">
       <property name="geometry">
        <rect>
@@ -374,14 +364,14 @@
      <widget class="QPushButton" name="trackButton">
       <property name="geometry">
        <rect>
-        <x>430</x>
+        <x>270</x>
         <y>260</y>
-        <width>151</width>
-        <height>21</height>
+        <width>201</width>
+        <height>41</height>
        </rect>
       </property>
       <property name="text">
-       <string>Datei suchen oder bestätigen</string>
+       <string>Datei suchen/bearbeiten</string>
       </property>
      </widget>
      <widget class="QPushButton" name="platformButton">
@@ -443,16 +433,6 @@
        </rect>
       </property>
      </widget>
-     <widget class="QLineEdit" name="trackFileText">
-      <property name="geometry">
-       <rect>
-        <x>430</x>
-        <y>280</y>
-        <width>151</width>
-        <height>21</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QLabel" name="label_7">
       <property name="geometry">
        <rect>
@@ -491,6 +471,19 @@
         <width>311</width>
         <height>40</height>
        </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="trackDeleteButton">
+      <property name="geometry">
+       <rect>
+        <x>480</x>
+        <y>260</y>
+        <width>101</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Song löschen</string>
       </property>
      </widget>
     </widget>
@@ -590,6 +583,19 @@
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="infoLabel">
+    <property name="geometry">
+     <rect>
+      <x>16</x>
+      <y>860</y>
+      <width>601</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>
