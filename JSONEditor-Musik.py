@@ -142,12 +142,6 @@ class JSONTool():
         out += '        "]"'
         f.write(out)
 
-    def changeDatei(self, id):
-        if id == 1:
-            self.dateipfad = os.path.abspath(".")+ "/Museum.js"
-        elif id == 0:
-            self.dateipfad = os.path.abspath(".")+ "/ImgDetails.js"
-
     def addTableRow(self):
         while (self.table.rowCount() > 0):
             self.table.removeRow(0)
@@ -176,6 +170,7 @@ class JSONEditor():
         self.platformList = []
         self.aktNumber = None
         self.selectedRow = None
+        self.directory = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
 
         self.connectButtons()
         
@@ -276,18 +271,20 @@ class JSONEditor():
 
     def getCoverFile(self):
         try:
-            fname = QFileDialog.getOpenFileName(caption='Album Cover wählen', directory=QStandardPaths.writableLocation(QStandardPaths.DesktopLocation) , filter="Image files (*.jpg)")
+            fname = QFileDialog.getOpenFileName(caption='Album Cover wählen', directory=self.directory , filter="Image files (*.jpg)")
             ifile = QFileInfo(str(fname[0]))
             if(ifile.fileName() != ""):
+                self.directory = ifile.path()
                 self.mainGui.coverfileText.setText(ifile.fileName())
         except Exception as Argument:
             self.error("getCoverFile", Argument)
 
     def addTrack(self):
         try:
-            fname = QFileDialog.getOpenFileName(caption='Track wählen', directory=QStandardPaths.writableLocation(QStandardPaths.DesktopLocation) , filter="Track files (*.mp3)")
+            fname = QFileDialog.getOpenFileName(caption='Track wählen', directory=self.directory , filter="Track files (*.mp3)")
             ifile = QFileInfo(str(fname[0]))
             if(ifile.fileName() != ""):
+                self.directory = ifile.path()
                 self.mainGui.trackListView.addItem(ifile.fileName())
                 self.trackList.append([ifile.fileName(), ifile.fileName()])
         except Exception as Argument:
