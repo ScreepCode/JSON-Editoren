@@ -17,7 +17,7 @@ class JSONTool():
     
     def openJSON(self):
         # Datei öffnen
-        f = open(self.dateipfad, "r")
+        f = open(self.dateipfad, "r", encoding="utf-8")
         rawJS = f.read()
         f.close()
         
@@ -40,6 +40,8 @@ class JSONTool():
     def appendNewJSON(self, newJsonString):
         data = self.openJSON()
 
+        newJsonString = newJsonString.replace("'", "´")
+
         dataStr = str(data)[:-1]
         dataStr += "," + newJsonString + "]"
         
@@ -57,9 +59,10 @@ class JSONTool():
     def editJSON(self, index, editJsonString):
         jsonData = self.openJSON()
 
+        editJsonString = editJsonString.replace("'", "´")
         jsonData[index] = editJsonString
 
-        f = open(self.dateipfad, "w")
+        f = open(self.dateipfad, "w", encoding="utf-8")
         out = '\nvar data = "[" + \n'
         for x in jsonData:
             y = str(x).replace("'", '"')
@@ -286,7 +289,8 @@ class JSONEditor():
             if(ifile.fileName() != ""):
                 self.directory = ifile.path()
                 self.mainGui.trackListView.addItem(ifile.fileName())
-                self.trackList.append([ifile.fileName(), ifile.fileName()])
+                # self.trackList.append([ifile.fileName(), ifile.fileName()])
+                self.trackList.append([ifile.fileName()])
         except Exception as Argument:
             self.error("addTrack", Argument)
 
@@ -312,7 +316,7 @@ class JSONEditor():
             self.error("addPlatform", Argument)
 
     def final(self):
-        try:
+        # try:
             if(self.mainGui.albumstilBox.currentText() == ""):
                 print("Bitte einen Stil hinzufügen")
                 return
@@ -341,7 +345,8 @@ class JSONEditor():
 
             trackData = '"titles": ['
             for x in self.trackList:
-                trackData += '{"title": "' + x[0] + '", "filename": "' + x[1] + '"},' 
+                # trackData += '{"title": "' + x[0] + '", "filename": "' + x[1] + '"},'
+                trackData += '{"title": "' + x[0] + '"},' 
             trackData = trackData[:-1] + ']'
 
             jsonData += trackData + ','
@@ -370,8 +375,8 @@ class JSONEditor():
             self.mainGui.platformListView.clear()
 
             self.mainGui.infoLabel.setText("Erfolgreich gespeichert")
-        except Exception as Argument:
-            self.error("final", Argument)
+        # except Exception as Argument:
+        #     self.error("final", Argument)
 
     def fillText(self, number):
         try:
@@ -384,7 +389,8 @@ class JSONEditor():
 
             if(self.trackList == []):
                 for x in jsonData[number]["titles"]:
-                    self.trackList.append([x["title"], x["filename"]])
+                    # self.trackList.append([x["title"], x["filename"]])
+                    self.trackList.append([x["title"]])
             if(self.platformList == []):
                 for x in jsonData[number]["links"]:
                     self.platformList.append([x["platform"], x["link"]])
