@@ -594,6 +594,11 @@
       <height>21</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>21</pointsize>
+     </font>
+    </property>
     <property name="text">
      <string/>
     </property>

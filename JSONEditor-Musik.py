@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import time
+import logging
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -178,7 +179,6 @@ class JSONEditor():
 
         self.connectButtons()
         
-
         sys.exit(self.mainApp.exec_())
 
     def connectButtons(self):
@@ -259,186 +259,250 @@ class JSONEditor():
             self.changeOrder()
 
     def selectTitle(self):
-        self.selectedRow = self.mainGui.trackListView.currentRow()
+        try:
+            self.selectedRow = self.mainGui.trackListView.currentRow()
+        except Exception as Argument:
+            self.error("selectTitle", Argument)
 
     def removeTitle(self):
-        if self.selectedRow != None:
-            self.trackList.remove(self.trackList[self.selectedRow])
-            self.selectedRow = None
-            self.clearText()
-            self.fillText(self.aktNumber)
+        try:
+            if self.selectedRow != None:
+                self.trackList.remove(self.trackList[self.selectedRow])
+                self.selectedRow = None
+                self.clearText()
+                self.fillText(self.aktNumber)
+        except Exception as Argument:
+            self.error("removeTitle", Argument)
 
     def getCoverFile(self):
-        fname = QFileDialog.getOpenFileName(caption='Album Cover wählen', directory=QStandardPaths.writableLocation(QStandardPaths.DesktopLocation) , filter="Image files (*.jpg)")
-        ifile = QFileInfo(str(fname[0]))
-        if(ifile.fileName() != ""):
-            self.mainGui.coverfileText.setText(ifile.fileName())
+        try:
+            fname = QFileDialog.getOpenFileName(caption='Album Cover wählen', directory=QStandardPaths.writableLocation(QStandardPaths.DesktopLocation) , filter="Image files (*.jpg)")
+            ifile = QFileInfo(str(fname[0]))
+            if(ifile.fileName() != ""):
+                self.mainGui.coverfileText.setText(ifile.fileName())
+        except Exception as Argument:
+            self.error("getCoverFile", Argument)
 
     def addTrack(self):
-        fname = QFileDialog.getOpenFileName(caption='Track wählen', directory=QStandardPaths.writableLocation(QStandardPaths.DesktopLocation) , filter="Track files (*.mp3)")
-        ifile = QFileInfo(str(fname[0]))
-        if(ifile.fileName() != ""):
-            self.mainGui.trackListView.addItem(ifile.fileName())
-            self.trackList.append([ifile.fileName(), ifile.fileName()])
+        try:
+            fname = QFileDialog.getOpenFileName(caption='Track wählen', directory=QStandardPaths.writableLocation(QStandardPaths.DesktopLocation) , filter="Track files (*.mp3)")
+            ifile = QFileInfo(str(fname[0]))
+            if(ifile.fileName() != ""):
+                self.mainGui.trackListView.addItem(ifile.fileName())
+                self.trackList.append([ifile.fileName(), ifile.fileName()])
+        except Exception as Argument:
+            self.error("addTrack", Argument)
 
     def addPlatform(self):
-        if(self.getPlatformIndex(self.mainGui.comboBox.currentText()) != None):
-            if(self.mainGui.platformlinkText.text() != ""):
-                self.platformList[self.getPlatformIndex(self.mainGui.comboBox.currentText())][1] = self.mainGui.platformlinkText.text()
+        try:
+            if(self.getPlatformIndex(self.mainGui.comboBox.currentText()) != None):
+                if(self.mainGui.platformlinkText.text() != ""):
+                    self.platformList[self.getPlatformIndex(self.mainGui.comboBox.currentText())][1] = self.mainGui.platformlinkText.text()
+                    self.mainGui.platformlinkText.setText("")
+                else:
+                    print("Füge bitte noch einen Link hinzu")
+
+            elif(self.mainGui.platformlinkText.text() != ""):
+                platform = self.mainGui.comboBox.currentText()
+                link = self.mainGui.platformlinkText.text()
+                self.platformList.append([platform, link])
+                
+                self.mainGui.platformListView.addItem(self.mainGui.comboBox.currentText())
                 self.mainGui.platformlinkText.setText("")
             else:
                 print("Füge bitte noch einen Link hinzu")
-
-        elif(self.mainGui.platformlinkText.text() != ""):
-            platform = self.mainGui.comboBox.currentText()
-            link = self.mainGui.platformlinkText.text()
-            self.platformList.append([platform, link])
-            
-            self.mainGui.platformListView.addItem(self.mainGui.comboBox.currentText())
-            self.mainGui.platformlinkText.setText("")
-        else:
-            print("Füge bitte noch einen Link hinzu")
+        except Exception as Argument:
+            self.error("addPlatform", Argument)
 
     def final(self):
-        if(self.mainGui.albumstilBox.currentText() == ""):
-            print("Bitte einen Stil hinzufügen")
-            return
+        try:
+            if(self.mainGui.albumstilBox.currentText() == ""):
+                print("Bitte einen Stil hinzufügen")
+                return
 
-        if(self.mainGui.albumnameText.text() == ""):
-            print("Bitte einen Namen hinzufügen")
-            return
+            if(self.mainGui.albumnameText.text() == ""):
+                print("Bitte einen Namen hinzufügen")
+                return
 
-        if(self.mainGui.coverfileText.text() == ""):
-            print("Bitte eine CoverDatei hinzufügen")
-            return
+            if(self.mainGui.coverfileText.text() == ""):
+                print("Bitte eine CoverDatei hinzufügen")
+                return
 
-        if(self.mainGui.promoText.text() == ""):
-            print("Bitte einen Text hinzufügen")
-            return
+            if(self.mainGui.promoText.text() == ""):
+                print("Bitte einen Text hinzufügen")
+                return
 
-        if(self.trackList == []):
-            print("Bitte mind. einen Track hinzufügen")
-            return
+            if(self.trackList == []):
+                print("Bitte mind. einen Track hinzufügen")
+                return
+                
+            jsonData = "{"
+            jsonData += '"stile": "' + self.mainGui.albumstilBox.currentText() + '",'
+            jsonData += '"albumname": "' + self.mainGui.albumnameText.text() + '",'
+            jsonData += '"coverfile": "' + self.mainGui.coverfileText.text() + '",'
+            jsonData += '"text": "' + self.mainGui.promoText.text() + '",'
 
-        jsonData = "{"
-        jsonData += '"stile": "' + self.mainGui.albumstilBox.currentText() + '",'
-        jsonData += '"albumname": "' + self.mainGui.albumnameText.text() + '",'
-        jsonData += '"coverfile": "' + self.mainGui.coverfileText.text() + '",'
-        jsonData += '"text": "' + self.mainGui.promoText.text() + '",'
+            trackData = '"titles": ['
+            for x in self.trackList:
+                trackData += '{"title": "' + x[0] + '", "filename": "' + x[1] + '"},' 
+            trackData = trackData[:-1] + ']'
 
-        trackData = '"titles": ['
-        for x in self.trackList:
-            trackData += '{"title": "' + x[0] + '", "filename": "' + x[1] + '"},' 
-        trackData = trackData[:-1] + ']'
+            jsonData += trackData + ','
 
-        jsonData += trackData + ','
+            platformData = '"links": ['
+            for x in self.platformList:
+                platformData += '{"platform": "' + x[0] + '", "link": "' + x[1] + '"},' 
+            platformData = platformData[:-1] + ']'
 
-        platformData = '"links": ['
-        for x in self.platformList:
-            platformData += '{"platform": "' + x[0] + '", "link": "' + x[1] + '"},' 
-        platformData = platformData[:-1] + ']'
-
-        jsonData += platformData
-        jsonData += "}"
+            jsonData += platformData
+            jsonData += "}"
 
 
-        if(self.MODE == "create"):
-            self.tool.appendNewJSON(jsonData)
-        elif(self.MODE == "edit"):
-            self.tool.editJSON(self.number, jsonData)
+            if(self.MODE == "create"):
+                self.tool.appendNewJSON(jsonData)
+            elif(self.MODE == "edit"):
+                self.tool.editJSON(self.number, jsonData)
 
-        self.mainGui.albumstilBox.setCurrentIndex(0)
-        self.mainGui.albumnameText.setText("")
-        self.mainGui.promoText.setText("")
-        self.mainGui.coverfileText.setText("")
-        self.trackList = []
-        self.platformList = []
-        self.mainGui.trackListView.clear()
-        self.mainGui.platformListView.clear()
+            self.mainGui.albumstilBox.setCurrentIndex(0)
+            self.mainGui.albumnameText.setText("")
+            self.mainGui.promoText.setText("")
+            self.mainGui.coverfileText.setText("")
+            self.trackList = []
+            self.platformList = []
+            self.mainGui.trackListView.clear()
+            self.mainGui.platformListView.clear()
 
-        self.mainGui.infoLabel.setText("Erfolgreich gespeichert")
+            self.mainGui.infoLabel.setText("Erfolgreich gespeichert")
+        except Exception as Argument:
+            self.error("final", Argument)
 
     def fillText(self, number):
-        self.number = number
-        jsonData = self.tool.openJSON()
-        self.mainGui.albumstilBox.setCurrentIndex(self.mainGui.albumstilBox.findText(jsonData[number]["stile"]))
-        self.mainGui.albumnameText.setText(jsonData[number]["albumname"])
-        self.mainGui.promoText.setText(jsonData[number]["text"])
-        self.mainGui.coverfileText.setText(jsonData[number]["coverfile"])
+        try:
+            self.number = number
+            jsonData = self.tool.openJSON()
+            self.mainGui.albumstilBox.setCurrentIndex(self.mainGui.albumstilBox.findText(jsonData[number]["stile"]))
+            self.mainGui.albumnameText.setText(jsonData[number]["albumname"])
+            self.mainGui.promoText.setText(jsonData[number]["text"])
+            self.mainGui.coverfileText.setText(jsonData[number]["coverfile"])
 
-        if(self.trackList == []):
-            for x in jsonData[number]["titles"]:
-                self.trackList.append([x["title"], x["filename"]])
-        if(self.platformList == []):
-            for x in jsonData[number]["links"]:
-                self.platformList.append([x["platform"], x["link"]])
+            if(self.trackList == []):
+                for x in jsonData[number]["titles"]:
+                    self.trackList.append([x["title"], x["filename"]])
+            if(self.platformList == []):
+                for x in jsonData[number]["links"]:
+                    self.platformList.append([x["platform"], x["link"]])
 
-        for x in self.trackList:
-            self.mainGui.trackListView.addItem(x[0])
+            for x in self.trackList:
+                self.mainGui.trackListView.addItem(x[0])
 
-        for x in self.platformList:
-            self.mainGui.platformListView.addItem(x[0])
+            for x in self.platformList:
+                self.mainGui.platformListView.addItem(x[0])
+        except Exception as Argument:
+            self.error("fillText", Argument)
 
     def clearText(self):
-        self.mainGui.albumstilBox.itemText(0)
-        self.mainGui.albumnameText.setText("")
-        self.mainGui.promoText.setText("")
-        self.mainGui.coverfileText.setText("")
-        # self.mainGui.tracknameText.setText("")
-        # self.mainGui.trackFileText.setText("")
-        self.mainGui.platformlinkText.setText("")
+        try:
+            self.mainGui.albumstilBox.itemText(0)
+            self.mainGui.albumnameText.setText("")
+            self.mainGui.promoText.setText("")
+            self.mainGui.coverfileText.setText("")
+            # self.mainGui.tracknameText.setText("")
+            # self.mainGui.trackFileText.setText("")
+            self.mainGui.platformlinkText.setText("")
 
-        self.mainGui.trackListView.clear()
-        self.mainGui.platformListView.clear()
+            self.mainGui.trackListView.clear()
+            self.mainGui.platformListView.clear()
+        except Exception as Argument:
+            self.error("clearText", Argument)
 
     def getPlatformLink(self):
-        self.mainGui.platformlinkText.setText(self.platformList[self.getPlatformIndex(self.mainGui.platformListView.currentIndex().data())][1])
-        self.mainGui.comboBox.setCurrentText(self.mainGui.platformListView.currentIndex().data())
+        try: 
+            self.mainGui.platformlinkText.setText(self.platformList[self.getPlatformIndex(self.mainGui.platformListView.currentIndex().data())][1])
+            self.mainGui.comboBox.setCurrentText(self.mainGui.platformListView.currentIndex().data())
+        except Exception as Argument:
+            self.error("getPlatformLink", Argument)
 
     def getPlatformIndex(self, platform):
-        for x in range(len(self.platformList)):
-            if(self.platformList[x][0] == platform):
-                return x
-        return None
+        try:
+            for x in range(len(self.platformList)):
+                if(self.platformList[x][0] == platform):
+                    return x
+            return None
+        except Exception as Argument:
+            self.error("getPlatformIndex", Argument)
     
     def fillTableRows(self):
-        while (self.mainGui.tableWidget.rowCount() > 0):
-            self.mainGui.tableWidget.removeRow(0)
+        try:
+            while (self.mainGui.tableWidget.rowCount() > 0):
+                self.mainGui.tableWidget.removeRow(0)
 
-        jsonData = self.tool.openJSON()
+            jsonData = self.tool.openJSON()
 
-        for x in jsonData:
-            row = self.mainGui.tableWidget.rowCount()
-            self.mainGui.tableWidget.setRowCount(row+1)
-            self.mainGui.tableWidget.setItem(row, 0, QTableWidgetItem(str(x["stile"])))
-            self.mainGui.tableWidget.setItem(row, 1, QTableWidgetItem(str(x["albumname"])))
-        self.mainGui.tableWidget.resizeColumnsToContents()
+            for x in jsonData:
+                row = self.mainGui.tableWidget.rowCount()
+                self.mainGui.tableWidget.setRowCount(row+1)
+                self.mainGui.tableWidget.setItem(row, 0, QTableWidgetItem(str(x["stile"])))
+                self.mainGui.tableWidget.setItem(row, 1, QTableWidgetItem(str(x["albumname"])))
+            self.mainGui.tableWidget.resizeColumnsToContents()
+        except Exception as Argument:
+            self.error("fillTableRows", Argument)
 
     def changeOrder(self):
-        indexes = self.mainGui.tableWidget.selectionModel().selectedRows()
-        if len(indexes) > 0:
-            for index in sorted(indexes):
-                #print('Row %d is selected' % index.row())
-                original = (int("%d" % index.row()))
-        new = int(self.mainGui.lineText.text())
-        self.tool.changeOrder(original, new)
-        self.fillTableRows()
-        self.mainGui.infoLabel.setText("Reihen ändern")
+        try:
+            indexes = self.mainGui.tableWidget.selectionModel().selectedRows()
+            if len(indexes) > 0:
+                for index in sorted(indexes):
+                    #print('Row %d is selected' % index.row())
+                    original = (int("%d" % index.row()))
+            new = int(self.mainGui.lineText.text())
+            self.tool.changeOrder(original, new)
+            self.fillTableRows()
+            self.mainGui.infoLabel.setText("Reihen ändern")
+        except Exception as Argument:
+            if(str(Argument) == "invalid literal for int() with base 10: ''"):
+                self.hinweis("Es muss eine Stelle angegeben werden, \nwohin verschoben werden soll")
+            elif(str(Argument) == "local variable 'original' referenced before assignment"):
+                self.hinweis("Es muss ein Eintrag ausgewählt sein, \nder Verschoben werden soll")
+            else:
+                self.error("changeOrder", Argument)
 
     def callEditRow(self):
-        indexes = self.mainGui.tableWidget.selectionModel().selectedRows()
-        if len(indexes) > 0:
-            for index in sorted(indexes):
-                #print('Row %d is selected' % index.row())
-                self.clearText()
-                self.trackList = []
-                self.platformList = []
-                self.aktNumber = int("%d" % index.row())
-                self.fillText(self.aktNumber)
+        try:
+            indexes = self.mainGui.tableWidget.selectionModel().selectedRows()
+            if len(indexes) > 0:
+                for index in sorted(indexes):
+                    #print('Row %d is selected' % index.row())
+                    self.clearText()
+                    self.trackList = []
+                    self.platformList = []
+                    self.aktNumber = int("%d" % index.row())
+                    self.fillText(self.aktNumber)
 
-            self.changePage("edit")
-            
-        else:
-            editTableGui.label.setText("Bitte wähle ein Reihe aus")
+                self.changePage("edit")
+                
+            else:
+                editTableGui.label.setText("Bitte wähle ein Reihe aus")
+        except Exception as Argument:
+            self.error("callEditRow", Argument)
+
+    def hinweis(self, hinweis):
+        msg = QMessageBox()
+        msg.setWindowTitle("Ein bekanntes Problem ist aufgetreten")
+        msg.setText(hinweis)
+        msg.setIcon(QMessageBox.Information)
+        x = msg.exec_()
+
+    def error(self, stelle, Argument):
+        print(stelle, Argument)
+
+        f = open("errorlog.txt", "a")
+        f.write(stelle + ":" + str(Argument) + "\n\n")
+        f.close()
+
+        msg = QMessageBox()
+        msg.setWindowTitle("Ein Fehler ist aufgetreten")
+        msg.setText("Es ist ein unbekannter Fehler aufgetreten. \nDer Fehler wurde der Textdatei hinzugefügt.")
+        msg.setIcon(QMessageBox.Critical)
+        x = msg.exec_()
 
 JE = JSONEditor()
