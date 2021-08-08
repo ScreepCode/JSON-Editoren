@@ -165,7 +165,7 @@ class JSONEditor():
         self.mainGui.stackedWidget.setCurrentIndex(0)
         self.mainGui.show()
         self.mainGui.albumstilBox.addItems(["", "E-Musik", "U-Musik", "C-Musik"])
-        self.mainGui.comboBox.addItems(["Apple Music", "Spotify", "Amazon Music", "Google Play", "YouTube Music", "Deezer", "7Digital", "Slacker", "Shazam", "Tidal", "Napster", "Rhapsody", "Yandex", "Pandora"])
+        self.mainGui.comboBox.addItems(["Not Released", "Apple Music", "Spotify", "Amazon Music", "Google Play", "YouTube Music", "Deezer", "7Digital", "Slacker", "Shazam", "Tidal", "Napster", "Rhapsody", "Yandex", "Pandora"])
 
         self.tool = JSONTool()
         self.MODE = ""
