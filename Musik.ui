@@ -351,7 +351,7 @@
        <rect>
         <x>270</x>
         <y>640</y>
-        <width>191</width>
+        <width>141</width>
         <height>40</height>
        </rect>
       </property>
@@ -377,9 +377,9 @@
      <widget class="QPushButton" name="platformButton">
       <property name="geometry">
        <rect>
-        <x>470</x>
+        <x>510</x>
         <y>640</y>
-        <width>111</width>
+        <width>71</width>
         <height>41</height>
        </rect>
       </property>
@@ -484,6 +484,20 @@
       </property>
       <property name="text">
        <string>Song löschen</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="platformDeleteButton">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>640</y>
+        <width>81</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Platform
+löschen</string>
       </property>
      </widget>
     </widget>

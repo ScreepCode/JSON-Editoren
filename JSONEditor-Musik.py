@@ -172,7 +172,8 @@ class JSONEditor():
         self.trackList = []
         self.platformList = []
         self.aktNumber = None
-        self.selectedRow = None
+        self.selectedTitleRow = None
+        self.selectedPlatformRow = None
         self.directory = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
 
         self.connectButtons()
@@ -193,7 +194,8 @@ class JSONEditor():
         self.mainGui.trackButton.clicked.connect(lambda: self.addManager("track"))
         self.mainGui.platformButton.clicked.connect(lambda: self.addManager("platform"))
         self.mainGui.saveButton.clicked.connect(lambda: self.addManager("final"))
-        self.mainGui.trackDeleteButton.clicked.connect(lambda: self.addManager("remove"))
+        self.mainGui.trackDeleteButton.clicked.connect(lambda: self.addManager("removeTitle"))
+        self.mainGui.platformDeleteButton.clicked.connect(lambda: self.addManager("removePlatform"))
 
         #Table
         self.mainGui.selectRowButton.clicked.connect(lambda: self.tableManager())
@@ -201,6 +203,7 @@ class JSONEditor():
         #Listen
         # self.mainGui.trackListView.clicked.connect(lambda: self.getTrackFile())
         self.mainGui.trackListView.clicked.connect(lambda: self.selectTitle())
+        self.mainGui.platformListView.clicked.connect(lambda: self.selectPlatform())
         self.mainGui.platformListView.clicked.connect(lambda: self.getPlatformLink())
 
     def changePage(self, page):
@@ -214,14 +217,12 @@ class JSONEditor():
             self.mainGui.caption.setText("Neues Album hinzufügen")
             self.mainGui.stackedWidget.setCurrentIndex(1)
             self.clearText()
-            self.mainGui.trackDeleteButton.setHidden(True)
         elif(page == "editTab"):
             self.mainGui.infoLabel.setText("")
             self.MODE = "edit"
             self.mainGui.caption.setText("Album zum bearbeiten auswählen")
             self.mainGui.stackedWidget.setCurrentIndex(2)
             self.fillTableRows()
-            self.mainGui.lineText.setHidden(True)
             self.mainGui.selectRowButton.setText("Ausgewählte Reihe \n bearbeiten")
         elif(page == "edit"):
             self.mainGui.infoLabel.setText("")
@@ -247,8 +248,10 @@ class JSONEditor():
             self.addPlatform()
         elif(action == "final"):
             self.final()
-        elif(action == "remove"):
+        elif(action == "removeTitle"):
             self.removeTitle()
+        elif(action == "removePlatform"):
+            self.removePlatform()
 
     def tableManager(self):
         if(self.MODE == "edit"):
@@ -258,15 +261,15 @@ class JSONEditor():
 
     def selectTitle(self):
         try:
-            self.selectedRow = self.mainGui.trackListView.currentRow()
+            self.selectedTitleRow = self.mainGui.trackListView.currentRow()
         except Exception as Argument:
             self.error("selectTitle", Argument)
 
     def removeTitle(self):
         try:
-            if self.selectedRow != None:
-                self.trackList.remove(self.trackList[self.selectedRow])
-                self.selectedRow = None
+            if self.selectedTitleRow != None:
+                self.trackList.remove(self.trackList[self.selectedTitleRow])
+                self.selectedTitleRow = None
                 self.clearText()
                 self.fillText(self.aktNumber)
         except Exception as Argument:
@@ -314,6 +317,22 @@ class JSONEditor():
                 print("Füge bitte noch einen Link hinzu")
         except Exception as Argument:
             self.error("addPlatform", Argument)
+
+    def selectPlatform(self):
+        try:
+            self.selectedPlatformRow = self.mainGui.platformListView.currentRow()
+        except Exception as Argument:
+            self.error("selectPlatform", Argument)
+
+    def removePlatform(self):
+        try:
+            if self.selectedPlatformRow != None:
+                self.platformList.remove(self.platformList[self.selectedPlatformRow])
+                self.selectedPlatformRow = None
+                self.clearText()
+                self.fillText(self.aktNumber)
+        except Exception as Argument:
+            self.error("removePlatform", Argument)
 
     def final(self):
         # try:
